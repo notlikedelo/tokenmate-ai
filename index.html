@@ -169,14 +169,49 @@
     </section>
 
     <!-- PORTFOLIO VIEW -->
-    <section id="view-portfolio" class="view" aria-label="Portfolio">
-      <div class="card">
-        <h3 style="margin:0 0 10px 0;">Your Portfolio</h3>
-        <div>BTC: 0.00</div>
-        <div>ETH: 0.00</div>
-        <div style="margin-top:8px; color:var(--muted);">Total Value: $0.00</div>
+   <section id="view-portfolio" class="view" aria-label="Portfolio">
+  <div class="card">
+    <h3 style="margin:0 0 10px 0;">Your Portfolio</h3>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div class="card" style="margin:0;">
+        <div style="color:var(--muted); font-size:12px;">BTC Price</div>
+        <div id="p-btc" style="font-size:18px; font-weight:700; margin-top:4px;">—</div>
+        <div id="c-btc" style="color:var(--muted); font-size:12px; margin-top:4px;">—</div>
       </div>
-    </section>
+
+      <div class="card" style="margin:0;">
+        <div style="color:var(--muted); font-size:12px;">ETH Price</div>
+        <div id="p-eth" style="font-size:18px; font-weight:700; margin-top:4px;">—</div>
+        <div id="c-eth" style="color:var(--muted); font-size:12px; margin-top:4px;">—</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div style="display:flex; justify-content:space-between; gap:10px; align-items:center;">
+        <div>
+          <div style="color:var(--muted); font-size:12px;">Your Holdings (edit)</div>
+          <div style="display:flex; gap:10px; margin-top:8px;">
+            <div style="flex:1;">
+              <div style="color:var(--muted); font-size:12px;">BTC</div>
+              <input id="h-btc" type="number" step="0.0001" placeholder="0.00" />
+            </div>
+            <div style="flex:1;">
+              <div style="color:var(--muted); font-size:12px;">ETH</div>
+              <input id="h-eth" type="number" step="0.0001" placeholder="0.00" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="savePortfolioBtn" style="margin-top:12px; width:100%;" type="button">Save Holdings</button>
+
+      <div style="margin-top:12px; color:var(--muted); font-size:12px;">Estimated Total Value</div>
+      <div id="totalValue" style="font-size:20px; font-weight:800; margin-top:6px;">$0.00</div>
+    </div>
+  </div>
+</section>
+
 
     <!-- BUILDER VIEW -->
     <section id="view-builder" class="view" aria-label="App Builder">
@@ -228,6 +263,91 @@
     async function sendChat(){
       const text = inputEl.value.trim();
       if(!text) return;
+// ===== Portfolio: live prices + totals (CoinGecko) =====
+let lastPrices = { btc: null, eth: null };
+
+function fmtUSD(n){
+  if (typeof n !== "number") return "—";
+  return "$" + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+function fmtPct(n){
+  if (typeof n !== "number") return "—";
+  const sign = n >= 0 ? "+" : "";
+  return `${sign}${n.toFixed(2)}% (24h)`;
+}
+
+async function refreshPortfolioPrices(){
+  try{
+    const url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true";
+    const r = await fetch(url);
+    const d = await r.json();
+
+    const btc = d?.bitcoin?.usd;
+    const btcCh = d?.bitcoin?.usd_24h_change;
+    const eth = d?.ethereum?.usd;
+    const ethCh = d?.ethereum?.usd_24h_change;
+
+    lastPrices.btc = btc;
+    lastPrices.eth = eth;
+
+    const pBtc = document.getElementById("p-btc");
+    const cBtc = document.getElementById("c-btc");
+    const pEth = document.getElementById("p-eth");
+    const cEth = document.getElementById("c-eth");
+
+    if (pBtc) pBtc.textContent = fmtUSD(btc);
+    if (cBtc) cBtc.textContent = fmtPct(btcCh);
+    if (pEth) pEth.textContent = fmtUSD(eth);
+    if (cEth) cEth.textContent = fmtPct(ethCh);
+
+    recomputeTotal();
+  } catch(e){
+    // leave existing UI as-is if rate-limited or offline
+  }
+}
+
+function recomputeTotal(){
+  const btcAmt = parseFloat(document.getElementById("h-btc")?.value || "0") || 0;
+  const ethAmt = parseFloat(document.getElementById("h-eth")?.value || "0") || 0;
+  const btcVal = (lastPrices.btc || 0) * btcAmt;
+  const ethVal = (lastPrices.eth || 0) * ethAmt;
+  const total = btcVal + ethVal;
+
+  const totalEl = document.getElementById("totalValue");
+  if (totalEl) totalEl.textContent = fmtUSD(total);
+}
+
+// Load & save holdings locally (so user doesn't lose it on refresh)
+function loadHoldings(){
+  try{
+    const saved = JSON.parse(localStorage.getItem("tm_holdings") || "{}");
+    if (typeof saved.btc === "number") document.getElementById("h-btc").value = saved.btc;
+    if (typeof saved.eth === "number") document.getElementById("h-eth").value = saved.eth;
+  } catch(e){}
+}
+
+function saveHoldings(){
+  const btc = parseFloat(document.getElementById("h-btc").value || "0") || 0;
+  const eth = parseFloat(document.getElementById("h-eth").value || "0") || 0;
+  localStorage.setItem("tm_holdings", JSON.stringify({ btc, eth }));
+  recomputeTotal();
+}
+
+// Wire events after page loads
+window.addEventListener("DOMContentLoaded", () => {
+  const saveBtn = document.getElementById("savePortfolioBtn");
+  if (saveBtn) saveBtn.addEventListener("click", saveHoldings);
+
+  const hb = document.getElementById("h-btc");
+  const he = document.getElementById("h-eth");
+  if (hb) hb.addEventListener("input", recomputeTotal);
+  if (he) he.addEventListener("input", recomputeTotal);
+
+  loadHoldings();
+  refreshPortfolioPrices();
+  setInterval(refreshPortfolioPrices, 60_000); // refresh every 60s
+});
 
       // Ensure we are on chat view
       setActive("chat");
