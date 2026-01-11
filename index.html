@@ -128,14 +128,39 @@
     event.target.classList.add('active');
   }
 
-  function sendChat() {
-    const input = document.getElementById("chatInput");
-    if (!input.value) return;
-    const chat = document.getElementById("chat");
-    chat.innerHTML += `<div class="message user">${input.value}</div>`;
-    chat.innerHTML += `<div class="message ai">🤖 TokenMate AI will respond soon (real AI coming).</div>`;
-    input.value = "";
+async function sendChat() {
+  const input = document.getElementById("chatInput");
+  if (!input.value) return;
+
+  const chat = document.getElementById("chat");
+  const userMessage = input.value;
+
+  chat.innerHTML += `<div class="message user">${userMessage}</div>`;
+  input.value = "";
+
+  const thinkingId = "thinking-" + Date.now();
+  chat.innerHTML += `<div class="message ai" id="${thinkingId}">🤖 TokenMate is thinking...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userMessage })
+    });
+
+    const data = await response.json();
+
+    document.getElementById(thinkingId).innerHTML =
+      data.reply || "⚠️ No response from AI.";
+  } catch (err) {
+    document.getElementById(thinkingId).innerHTML =
+      "❌ Error connecting to AI.";
   }
+
+  chat.scrollTop = chat.scrollHeight;
+}
+
 </script>
 
 </body>
