@@ -134,6 +134,8 @@
 </div>
 
 <script>
+  let chatHistory = [];
+
   function show(id) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
@@ -142,6 +144,46 @@
   }
 
 async function sendChat() {
+  const input = document.getElementById("chatInput");
+  if (!input.value) return;
+
+  const chat = document.getElementById("chat");
+  const userMessage = input.value;
+
+  chat.innerHTML += `<div class="message user">${userMessage}</div>`;
+  input.value = "";
+
+  // save user message to memory
+  chatHistory.push({ role: "user", content: userMessage });
+
+  const thinkingId = "thinking-" + Date.now();
+  chat.innerHTML += `<div class="message ai" id="${thinkingId}">🤖 TokenMate is thinking...</div>`;
+  chat.scrollTop = chat.scrollHeight;
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: userMessage,
+        history: chatHistory
+      })
+    });
+
+    const data = await response.json();
+    const reply = data.reply || data.error || "⚠️ No response from AI.";
+
+    document.getElementById(thinkingId).innerText = reply;
+
+    // save assistant reply to memory
+    chatHistory.push({ role: "assistant", content: reply });
+  } catch (err) {
+    document.getElementById(thinkingId).innerText = "❌ Error connecting to AI.";
+  }
+
+  chat.scrollTop = chat.scrollHeight;
+}
+
   const input = document.getElementById("chatInput");
   if (!input.value) return;
 
