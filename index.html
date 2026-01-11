@@ -3,39 +3,92 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TokenMate AI Beta</title>
+  <title>TokenMate AI</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #0b0f1a;
       color: #e5e7eb;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 16px;
+      background: #020617;
       text-align: center;
-    }
-    .card {
-      background: #111827;
-      padding: 30px;
-      border-radius: 12px;
-      max-width: 400px;
-    }
-    h1 {
+      font-weight: bold;
       color: #22d3ee;
     }
-    p {
-      color: #9ca3af;
+    .chat {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    .message {
+      max-width: 75%;
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 12px;
+    }
+    .ai {
+      background: #111827;
+      align-self: flex-start;
+    }
+    .user {
+      background: #22d3ee;
+      color: #020617;
+      align-self: flex-end;
+    }
+    .input {
+      display: flex;
+      padding: 12px;
+      background: #020617;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      margin-left: 8px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #22d3ee;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>TokenMate AI</h1>
-    <p>🚀 Beta is live</p>
-    <p>Your AI crypto assistant & app builder.</p>
-    <p>More features coming soon.</p>
+  <header>TokenMate AI</header>
+
+  <div class="chat" id="chat">
+    <div class="message ai">
+      👋 Welcome to TokenMate AI.  
+      I help with crypto investing, app building, and monetization.
+    </div>
   </div>
+
+  <div class="input">
+    <input id="input" placeholder="Ask TokenMate anything..." />
+    <button onclick="send()">Send</button>
+  </div>
+
+  <script>
+    function send() {
+      const input = document.getElementById("input");
+      const chat = document.getElementById("chat");
+      if (!input.value) return;
+
+      chat.innerHTML += `<div class="message user">${input.value}</div>`;
+      chat.innerHTML += `<div class="message ai">🤖 TokenMate is thinking... (AI coming soon)</div>`;
+      input.value = "";
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
 </body>
 </html>
