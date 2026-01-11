@@ -15,80 +15,128 @@
       flex-direction: column;
     }
     header {
-      padding: 16px;
       background: #020617;
+      padding: 14px;
       text-align: center;
       font-weight: bold;
       color: #22d3ee;
     }
-    .chat {
+    nav {
+      display: flex;
+      background: #020617;
+    }
+    nav button {
       flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+    nav button.active {
+      color: #22d3ee;
+      border-bottom: 2px solid #22d3ee;
+    }
+    .view {
+      flex: 1;
+      display: none;
       padding: 16px;
       overflow-y: auto;
     }
+    .view.active {
+      display: block;
+    }
     .message {
-      max-width: 75%;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       padding: 12px;
-      border-radius: 12px;
+      border-radius: 10px;
+      max-width: 75%;
     }
     .ai {
       background: #111827;
-      align-self: flex-start;
     }
     .user {
       background: #22d3ee;
       color: #020617;
-      align-self: flex-end;
+      margin-left: auto;
     }
-    .input {
-      display: flex;
-      padding: 12px;
-      background: #020617;
-    }
-    input {
-      flex: 1;
+    input, textarea {
+      width: 100%;
       padding: 10px;
       border-radius: 8px;
       border: none;
+      margin-top: 10px;
     }
-    button {
-      margin-left: 8px;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
+    button.primary {
       background: #22d3ee;
-      font-weight: bold;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
       cursor: pointer;
+      font-weight: bold;
+    }
+    .card {
+      background: #111827;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
     }
   </style>
 </head>
 <body>
-  <header>TokenMate AI</header>
 
-  <div class="chat" id="chat">
-    <div class="message ai">
-      👋 Welcome to TokenMate AI.  
-      I help with crypto investing, app building, and monetization.
-    </div>
+<header>TokenMate AI</header>
+
+<nav>
+  <button class="active" onclick="show('chat')">Chat</button>
+  <button onclick="show('portfolio')">Portfolio</button>
+  <button onclick="show('builder')">App Builder</button>
+</nav>
+
+<!-- CHAT -->
+<div id="chat" class="view active">
+  <div class="message ai">👋 Welcome to TokenMate AI. Ask me about crypto or app ideas.</div>
+  <input id="chatInput" placeholder="Ask TokenMate..." />
+  <button class="primary" onclick="sendChat()">Send</button>
+</div>
+
+<!-- PORTFOLIO -->
+<div id="portfolio" class="view">
+  <div class="card">
+    <h3>Your Portfolio</h3>
+    <p>BTC: 0.00</p>
+    <p>ETH: 0.00</p>
+    <p>Total Value: $0.00</p>
   </div>
+</div>
 
-  <div class="input">
-    <input id="input" placeholder="Ask TokenMate anything..." />
-    <button onclick="send()">Send</button>
+<!-- APP BUILDER -->
+<div id="builder" class="view">
+  <div class="card">
+    <h3>Create an App</h3>
+    <textarea placeholder="Describe your app idea..."></textarea>
+    <button class="primary">Generate App (Coming Soon)</button>
   </div>
+</div>
 
-  <script>
-    function send() {
-      const input = document.getElementById("input");
-      const chat = document.getElementById("chat");
-      if (!input.value) return;
+<script>
+  function show(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+  }
 
-      chat.innerHTML += `<div class="message user">${input.value}</div>`;
-      chat.innerHTML += `<div class="message ai">🤖 TokenMate is thinking... (AI coming soon)</div>`;
-      input.value = "";
-      chat.scrollTop = chat.scrollHeight;
-    }
-  </script>
+  function sendChat() {
+    const input = document.getElementById("chatInput");
+    if (!input.value) return;
+    const chat = document.getElementById("chat");
+    chat.innerHTML += `<div class="message user">${input.value}</div>`;
+    chat.innerHTML += `<div class="message ai">🤖 TokenMate AI will respond soon (real AI coming).</div>`;
+    input.value = "";
+  }
+</script>
+
 </body>
 </html>
