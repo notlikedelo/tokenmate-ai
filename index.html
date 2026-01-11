@@ -5,232 +5,277 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TokenMate AI</title>
   <style>
-    body {
-      margin: 0;
+    :root{
+      --bg:#0b0f1a;
+      --panel:#111827;
+      --header:#020617;
+      --accent:#22d3ee;
+      --muted:#9ca3af;
+      --text:#e5e7eb;
+    }
+    *{ box-sizing:border-box; }
+    html, body { height:100%; }
+    body{
+      margin:0;
       font-family: Arial, sans-serif;
-      background: #0b0f1a;
-      color: #e5e7eb;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
     }
-    header {
-      background: #020617;
-      padding: 14px;
-      text-align: center;
-      font-weight: bold;
-      color: #22d3ee;
-    }
-    nav {
-      display: flex;
-      background: #020617;
-    }
-    nav button {
-      flex: 1;
-      padding: 12px;
-      background: none;
-      border: none;
-      color: #9ca3af;
-      cursor: pointer;
-    }
-    nav button.active {
-      color: #22d3ee;
-      border-bottom: 2px solid #22d3ee;
-    }
-    .view {
-      flex: 1;
-      display: none;
-      padding: 16px;
-      overflow-y: auto;
-    }
-    .view.active {
-      display: block;
-    }
-    .message {
-      margin-bottom: 10px;
-      padding: 12px;
-      border-radius: 10px;
-      max-width: 75%;
-    }
-    .ai {
-      background: #111827;
-    }
-    .user {
-      background: #22d3ee;
-      color: #020617;
-      margin-left: auto;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      margin-top: 10px;
-    }
-    button.primary {
-      background: #22d3ee;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 10px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .card {
-      background: #111827;
-      padding: 16px;
-      border-radius: 12px;
-      margin-bottom: 12px;
-    }
-    .disclaimer {
-  font-size: 12px;
-  color: #9ca3af;
-  margin-top: 4px;
-  opacity: 0.85;
-}
 
- nav {
-  position: relative;
-  z-index: 10;
-}
+    /* Header */
+    header{
+      background:var(--header);
+      padding:12px 14px;
+      text-align:center;
+      font-weight:700;
+      color:var(--accent);
+      flex:0 0 auto;
+    }
+    .disclaimer{
+      margin-top:4px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:400;
+      opacity:.9;
+    }
 
-header {
-  position: relative;
-  z-index: 10;
-}
+    /* Tabs */
+    nav{
+      background:var(--header);
+      display:flex;
+      gap:0;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      flex:0 0 auto;
+    }
+    nav button{
+      flex:1;
+      padding:12px;
+      background:transparent;
+      border:0;
+      color:var(--muted);
+      cursor:pointer;
+      font-weight:600;
+    }
+    nav button.active{
+      color:var(--accent);
+      border-bottom:2px solid var(--accent);
+    }
 
-.view {
-  position: relative;
-  z-index: 1;
-}
- </style>
+    /* Main area */
+    main{
+      flex:1 1 auto;
+      min-height:0; /* IMPORTANT: allows scrolling inside */
+      display:flex;
+      flex-direction:column;
+    }
+
+    .view{
+      display:none;
+      padding:14px;
+      overflow:auto;
+      flex:1 1 auto;
+      min-height:0;
+    }
+    .view.active{ display:block; }
+
+    .card{
+      background:var(--panel);
+      border-radius:14px;
+      padding:14px;
+      margin-bottom:12px;
+      border:1px solid rgba(255,255,255,.06);
+    }
+
+    /* Chat */
+    .messages{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      padding-bottom:12px;
+    }
+    .message{
+      max-width:78%;
+      padding:12px;
+      border-radius:12px;
+      line-height:1.35;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .message.ai{
+      background:var(--panel);
+      align-self:flex-start;
+    }
+    .message.user{
+      background:var(--accent);
+      color:var(--header);
+      align-self:flex-end;
+    }
+
+    .composer{
+      display:flex;
+      gap:10px;
+      padding:12px;
+      background:var(--header);
+      border-top:1px solid rgba(255,255,255,.06);
+      flex:0 0 auto;
+    }
+    .composer input{
+      flex:1;
+      border:1px solid rgba(255,255,255,.10);
+      background:#0f172a;
+      color:var(--text);
+      padding:12px;
+      border-radius:12px;
+      outline:none;
+    }
+    .composer button{
+      border:0;
+      background:var(--accent);
+      color:var(--header);
+      font-weight:700;
+      padding:12px 16px;
+      border-radius:12px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .composer button:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+  </style>
 </head>
+
 <body>
+  <header>
+    TokenMate AI
+    <div class="disclaimer">⚠️ Educational purposes only — not financial advice.</div>
+  </header>
 
-<header>
-  TokenMate AI
-  <div class="disclaimer">
-    ⚠️ Educational purposes only — not financial advice.
-  </div>
-</header>
+  <nav>
+    <button id="tab-chat" class="active" type="button">Chat</button>
+    <button id="tab-portfolio" type="button">Portfolio</button>
+    <button id="tab-builder" type="button">App Builder</button>
+  </nav>
 
+  <main>
+    <!-- CHAT VIEW -->
+    <section id="view-chat" class="view active" aria-label="Chat">
+      <div class="messages" id="messages">
+        <div class="message ai">👋 Welcome to TokenMate AI. Ask me about crypto or app ideas.</div>
+      </div>
+    </section>
 
-<nav>
-  <button class="active" onclick="show('chat')">Chat</button>
-  <button onclick="show('portfolio')">Portfolio</button>
-  <button onclick="show('builder')">App Builder</button>
-</nav>
+    <!-- PORTFOLIO VIEW -->
+    <section id="view-portfolio" class="view" aria-label="Portfolio">
+      <div class="card">
+        <h3 style="margin:0 0 10px 0;">Your Portfolio</h3>
+        <div>BTC: 0.00</div>
+        <div>ETH: 0.00</div>
+        <div style="margin-top:8px; color:var(--muted);">Total Value: $0.00</div>
+      </div>
+    </section>
 
-<!-- CHAT -->
-<div id="chat" class="view active">
-  <div class="message ai">👋 Welcome to TokenMate AI. Ask me about crypto or app ideas.</div>
-  <input id="chatInput" placeholder="Ask TokenMate..." />
-  <button class="primary" onclick="sendChat()">Send</button>
-</div>
+    <!-- BUILDER VIEW -->
+    <section id="view-builder" class="view" aria-label="App Builder">
+      <div class="card">
+        <h3 style="margin:0 0 10px 0;">Create an App</h3>
+        <div style="color:var(--muted); margin-bottom:10px;">
+          Describe your app idea and TokenMate will help generate it (coming soon).
+        </div>
+        <input id="builderInput" placeholder="Example: A BTC price alert app with subscriptions..." />
+        <button style="margin-top:10px; width:100%;" disabled>Generate App (Coming Soon)</button>
+      </div>
+    </section>
 
-<!-- PORTFOLIO -->
-<div id="portfolio" class="view">
-  <div class="card">
-    <h3>Your Portfolio</h3>
-    <p>BTC: 0.00</p>
-    <p>ETH: 0.00</p>
-    <p>Total Value: $0.00</p>
-  </div>
-</div>
+    <!-- COMPOSER (fixed area, always clickable) -->
+    <div class="composer">
+      <input id="chatInput" placeholder="Ask TokenMate..." autocomplete="off" />
+      <button id="sendBtn" type="button">Send</button>
+    </div>
+  </main>
 
-<!-- APP BUILDER -->
-<div id="builder" class="view">
-  <div class="card">
-    <h3>Create an App</h3>
-    <textarea placeholder="Describe your app idea..."></textarea>
-    <button class="primary">Generate App (Coming Soon)</button>
-  </div>
-</div>
+  <script>
+    // Tab switching (NO event.target usage — fixes Chromebook/mobile issues)
+    const tabs = {
+      chat: document.getElementById("tab-chat"),
+      portfolio: document.getElementById("tab-portfolio"),
+      builder: document.getElementById("tab-builder"),
+    };
+    const views = {
+      chat: document.getElementById("view-chat"),
+      portfolio: document.getElementById("view-portfolio"),
+      builder: document.getElementById("view-builder"),
+    };
 
-<script>
-  let chatHistory = [];
+    function setActive(tabName){
+      Object.keys(tabs).forEach(k => tabs[k].classList.toggle("active", k === tabName));
+      Object.keys(views).forEach(k => views[k].classList.toggle("active", k === tabName));
+    }
 
-  function show(id) {
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    event.target.classList.add('active');
-  }
+    tabs.chat.addEventListener("click", () => setActive("chat"));
+    tabs.portfolio.addEventListener("click", () => setActive("portfolio"));
+    tabs.builder.addEventListener("click", () => setActive("builder"));
 
-async function sendChat() {
-  const input = document.getElementById("chatInput");
-  if (!input.value) return;
+    // Real AI
+    let chatHistory = [];
+    const messagesEl = document.getElementById("messages");
+    const inputEl = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
 
-  const chat = document.getElementById("chat");
-  const userMessage = input.value;
+    async function sendChat(){
+      const text = inputEl.value.trim();
+      if(!text) return;
 
-  chat.innerHTML += `<div class="message user">${userMessage}</div>`;
-  input.value = "";
+      // Ensure we are on chat view
+      setActive("chat");
 
-  // save user message to memory
-  chatHistory.push({ role: "user", content: userMessage });
+      // Render user bubble
+      const u = document.createElement("div");
+      u.className = "message user";
+      u.textContent = text;
+      messagesEl.appendChild(u);
 
-  const thinkingId = "thinking-" + Date.now();
-  chat.innerHTML += `<div class="message ai" id="${thinkingId}">🤖 TokenMate is thinking...</div>`;
-  chat.scrollTop = chat.scrollHeight;
+      inputEl.value = "";
+      inputEl.focus();
 
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: userMessage,
-        history: chatHistory
-      })
+      chatHistory.push({ role:"user", content:text });
+
+      // Thinking bubble
+      const a = document.createElement("div");
+      a.className = "message ai";
+      a.textContent = "🤖 TokenMate is thinking...";
+      messagesEl.appendChild(a);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      sendBtn.disabled = true;
+
+      try{
+        const r = await fetch("/api/chat", {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ message: text, history: chatHistory })
+        });
+
+        const data = await r.json();
+        const reply = data.reply || data.error || "⚠️ No response from AI.";
+
+        a.textContent = reply;
+        chatHistory.push({ role:"assistant", content: reply });
+      }catch(e){
+        a.textContent = "❌ Error connecting to AI.";
+      }finally{
+        sendBtn.disabled = false;
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+      }
+    }
+
+    sendBtn.addEventListener("click", sendChat);
+    inputEl.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") sendChat();
     });
-
-    const data = await response.json();
-    const reply = data.reply || data.error || "⚠️ No response from AI.";
-
-    document.getElementById(thinkingId).innerText = reply;
-
-    // save assistant reply to memory
-    chatHistory.push({ role: "assistant", content: reply });
-  } catch (err) {
-    document.getElementById(thinkingId).innerText = "❌ Error connecting to AI.";
-  }
-
-  chat.scrollTop = chat.scrollHeight;
-}
-
-  const input = document.getElementById("chatInput");
-  if (!input.value) return;
-
-  const chat = document.getElementById("chat");
-  const userMessage = input.value;
-
-  chat.innerHTML += `<div class="message user">${userMessage}</div>`;
-  input.value = "";
-
-  const thinkingId = "thinking-" + Date.now();
-  chat.innerHTML += `<div class="message ai" id="${thinkingId}">🤖 TokenMate is thinking...</div>`;
-  chat.scrollTop = chat.scrollHeight;
-
-  try {
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: userMessage })
-    });
-
-    const data = await response.json();
-
-    document.getElementById(thinkingId).innerHTML =
-      data.reply || "⚠️ No response from AI.";
-  } catch (err) {
-    document.getElementById(thinkingId).innerHTML =
-      "❌ Error connecting to AI.";
-  }
-
-  chat.scrollTop = chat.scrollHeight;
-}
-
-</script>
-
+  </script>
 </body>
 </html>
