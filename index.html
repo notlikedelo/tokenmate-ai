@@ -308,27 +308,6 @@ function fmtPct(n){
   const sign = n >= 0 ? "+" : "";
   return `${sign}${n.toFixed(2)}% (24h)`;
 }
-function sendChat() {
-  if (!inputEl || !messagesEl) return;
-
-  const text = inputEl.value.trim();
-  if (!text) return;
-
-  const u = document.createElement("div");
-  u.className = "message user";
-  u.textContent = text;
-  messagesEl.appendChild(u);
-
-  inputEl.value = "";
-  inputEl.focus();
-
-  const a = document.createElement("div");
-  a.className = "message ai";
-  a.textContent = "✅ Chat is wired up.";
-  messagesEl.appendChild(a);
-
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
 
 async function refreshPortfolioPrices() {
   try {
@@ -371,7 +350,8 @@ async function refreshPortfolioPrices() {
 }
 async function sendChat() {
   const inputEl = document.getElementById("chatInput");
-  const messagesEl = document.getElementById("chat");
+  const messagesEl = document.getElementById("messages");
+
   if (!inputEl || !messagesEl) return;
 
   const text = inputEl.value.trim();
@@ -400,6 +380,7 @@ if (sendBtn) sendBtn.addEventListener("click", sendChat);
 if (inputEl) inputEl.addEventListener("keydown", (e) => {
   if (e.key === "Enter") sendChat();
 });
+
 
 
 // Start prices
