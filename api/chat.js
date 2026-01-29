@@ -10,35 +10,30 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "No message provided" });
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are TokenMate AI, a crypto-focused assistant that explains things clearly and simply.",
-          },
-          { role: "user", content: message },
-        ],
-        temperature: 0.7,
+        model: "gpt-4.1-mini",
+        input: message,
       }),
     });
 
     const data = await response.json();
 
-    if (!data.choices) {
-      return res.status(500).json({ error: "Invalid OpenAI response", data });
+    if (!response.ok) {
+      console.error(data);
+      return res.status(500).json({ error: "OpenAI API error" });
     }
 
-    res.status(200).json({
-      reply: data.choices[0].message.content,
-    });
+    const reply =
+      data.output?.[0]?.content?.[0]?.text ||
+      "I couldn't generate a response.";
+
+    res.status(200).json({ reply });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });
