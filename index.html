@@ -309,61 +309,55 @@ function fmtPct(n){
 }
 
 async function refreshPortfolioPrices() {
-try {
-  const url =
-    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,solana&vs_currencies=usd&include_24hr_change=true";
+  try {
+    const url =
+      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,solana&vs_currencies=usd&include_24hr_change=true";
 
-  const r = await fetch(url);
-  const d = await r.json();
+    const r = await fetch(url);
+    const d = await r.json();
 
-  const btc = d.bitcoin?.usd;
-  const btcch = d.bitcoin?.usd_24h_change;
+    const btc = d.bitcoin?.usd;
+    const btcch = d.bitcoin?.usd_24h_change;
 
-  const eth = d.ethereum?.usd;
-  const ethch = d.ethereum?.usd_24h_change;
+    const eth = d.ethereum?.usd;
+    const ethch = d.ethereum?.usd_24h_change;
 
-  const xrp = d.ripple?.usd;
-  const xrpch = d.ripple?.usd_24h_change;
+    const xrp = d.ripple?.usd;
+    const xrpch = d.ripple?.usd_24h_change;
 
-  const sol = d.solana?.usd;
-  const solch = d.solana?.usd_24h_change;
+    const sol = d.solana?.usd;
+    const solch = d.solana?.usd_24h_change;
 
-  lastPrices.btc = btc;
-  lastPrices.eth = eth;
-  lastPrices.xrp = xrp;
-  lastPrices.sol = sol;
+    // Update UI if you have these ids in HTML:
+    set("p-btc", fmtUSD(btc));
+    set("c-btc", fmtPct(btcch));
 
-  const set = (id, val) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  };
+    set("p-eth", fmtUSD(eth));
+    set("c-eth", fmtPct(ethch));
 
-  set("p-btc", fmtUSD(btc));
-  set("c-btc", fmtPct(btcch));
+    set("p-xrp", fmtUSD(xrp));
+    set("c-xrp", fmtPct(xrpch));
 
-  set("p-eth", fmtUSD(eth));
-  set("c-eth", fmtPct(ethch));
+    set("p-sol", fmtUSD(sol));
+    set("c-sol", fmtPct(solch));
 
-  set("p-xrp", fmtUSD(xrp));
-  set("c-xrp", fmtPct(xrpch));
-
-  set("p-sol", fmtUSD(sol));
-  set("c-sol", fmtPct(solch));
-
-  recomputeTotal();
-} catch (e) {
-  console.warn("Price fetch failed", e);
+    recomputeTotal();
+  } catch (e) {
+    console.warn("Price fetch failed", e);
+  }
 }
- 
 
-    sendBtn.addEventListener("click", sendChat);
-    inputEl.addEventListener("keydown", (e) => {
-      if(e.key === "Enter") sendChat();
-    });
+// Hook chat events (these must be OUTSIDE the function)
+sendBtn.addEventListener("click", sendChat);
+inputEl.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendChat();
+});
 
-    refreshPortfolioPrices();
-setInterval(refreshPortfolioPrices, 30000);
- });
+// Start prices
+refreshPortfolioPrices();
+setInterval(refreshPortfolioPrices, 60000);
+});
+
     </script>
 </body>
 </html>
