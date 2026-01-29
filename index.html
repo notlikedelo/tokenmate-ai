@@ -366,13 +366,28 @@ async function sendChat() {
   inputEl.value = "";
   inputEl.focus();
 
-  // AI bubble (temporary)
+  try {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text })
+  });
+
+  const data = await res.json();
+
   const a = document.createElement("div");
   a.className = "message ai";
-  a.textContent = "You said: " + text;
+  a.textContent = data.reply || "No response from AI.";
   messagesEl.appendChild(a);
+} catch (err) {
+  const a = document.createElement("div");
+  a.className = "message ai";
+  a.textContent = "Server error. Check API.";
+  messagesEl.appendChild(a);
+}
 
-  messagesEl.scrollTop = messagesEl.scrollHeight;
+messagesEl.scrollTop = messagesEl.scrollHeight;
+
 }
 
 // Hook chat events (these must be OUTSIDE the function)
