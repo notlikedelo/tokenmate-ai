@@ -293,10 +293,6 @@
     const messagesEl = document.getElementById("messages");
     const inputEl = document.getElementById("chatInput");
     const sendBtn = document.getElementById("sendBtn");
-
-    async function sendChat(){
-      const text = inputEl.value.trim();
-      if(!text) return;
 // ===== Portfolio: live prices + totals (CoinGecko) =====
 let lastPrices = { btc: null, eth: null, sol: null, xrp: null };
 
@@ -313,146 +309,61 @@ function fmtPct(n){
 }
 
 async function refreshPortfolioPrices() {
-  try {
-    const url =
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,solana&vs_currencies=usd&include_24hr_change=true";
+try {
+  const url =
+    "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,solana&vs_currencies=usd&include_24hr_change=true";
 
-    const r = await fetch(url);
-    const d = await r.json();
+  const r = await fetch(url);
+  const d = await r.json();
 
-    const btc = d.bitcoin?.usd;
-    const btcch = d.bitcoin?.usd_24h_change;
+  const btc = d.bitcoin?.usd;
+  const btcch = d.bitcoin?.usd_24h_change;
 
-    const eth = d.ethereum?.usd;
-    const ethch = d.ethereum?.usd_24h_change;
+  const eth = d.ethereum?.usd;
+  const ethch = d.ethereum?.usd_24h_change;
 
-    const xrp = d.ripple?.usd;
-    const xrpch = d.ripple?.usd_24h_change;
+  const xrp = d.ripple?.usd;
+  const xrpch = d.ripple?.usd_24h_change;
 
-    const sol = d.solana?.usd;
-    const solch = d.solana?.usd_24h_change;
+  const sol = d.solana?.usd;
+  const solch = d.solana?.usd_24h_change;
 
-    lastPrices.btc = btc;
-    lastPrices.eth = eth;
-    lastPrices.xrp = xrp;
-    lastPrices.sol = sol;
+  lastPrices.btc = btc;
+  lastPrices.eth = eth;
+  lastPrices.xrp = xrp;
+  lastPrices.sol = sol;
 
-    const set = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    };
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
 
-    set("p-btc", fmtUSD(btc));
-    set("c-btc", fmtPct(btcch));
+  set("p-btc", fmtUSD(btc));
+  set("c-btc", fmtPct(btcch));
 
-    set("p-eth", fmtUSD(eth));
-    set("c-eth", fmtPct(ethch));
+  set("p-eth", fmtUSD(eth));
+  set("c-eth", fmtPct(ethch));
 
-    set("p-xrp", fmtUSD(xrp));
-    set("c-xrp", fmtPct(xrpch));
+  set("p-xrp", fmtUSD(xrp));
+  set("c-xrp", fmtPct(xrpch));
 
-    set("p-sol", fmtUSD(sol));
-    set("c-sol", fmtPct(solch));
+  set("p-sol", fmtUSD(sol));
+  set("c-sol", fmtPct(solch));
 
-    recomputeTotal();
-  } catch (e) {
-    console.warn("Price fetch failed", e);
-  }
-}
-
-
-function recomputeTotal(){
-  const btcAmt = parseFloat(document.getElementById("h-btc")?.value || "0") || 0;
-  const ethAmt = parseFloat(document.getElementById("h-eth")?.value || "0") || 0;
-  const btcVal = (lastPrices.btc || 0) * btcAmt;
-  const ethVal = (lastPrices.eth || 0) * ethAmt;
-  const total = btcVal + ethVal;
-
-  const totalEl = document.getElementById("totalValue");
-  if (totalEl) totalEl.textContent = fmtUSD(total);
-}
-
-// Load & save holdings locally (so user doesn't lose it on refresh)
-function loadHoldings(){
-  try{
-    const saved = JSON.parse(localStorage.getItem("tm_holdings") || "{}");
-    if (typeof saved.btc === "number") document.getElementById("h-btc").value = saved.btc;
-    if (typeof saved.eth === "number") document.getElementById("h-eth").value = saved.eth;
-  } catch(e){}
-}
-
-function saveHoldings(){
-  const btc = parseFloat(document.getElementById("h-btc").value || "0") || 0;
-  const eth = parseFloat(document.getElementById("h-eth").value || "0") || 0;
-  localStorage.setItem("tm_holdings", JSON.stringify({ btc, eth }));
   recomputeTotal();
+} catch (e) {
+  console.warn("Price fetch failed", e);
 }
-
-// Wire events after page loads
-window.addEventListener("DOMContentLoaded", () => {
-  const saveBtn = document.getElementById("savePortfolioBtn");
-  if (saveBtn) saveBtn.addEventListener("click", saveHoldings);
-
- ["h-btc","h-eth","h-sol","h-xrp"].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener("input", recomputeTotal);
-});
-
-
-  loadHoldings();
-  refreshPortfolioPrices();
-  setInterval(refreshPortfolioPrices, 60_000); // refresh every 60s
-});
-
-      // Ensure we are on chat view
-      setActive("chat");
-
-      // Render user bubble
-      const u = document.createElement("div");
-      u.className = "message user";
-      u.textContent = text;
-      messagesEl.appendChild(u);
-
-      inputEl.value = "";
-      inputEl.focus();
-
-      chatHistory.push({ role:"user", content:text });
-
-      // Thinking bubble
-      const a = document.createElement("div");
-      a.className = "message ai";
-      a.textContent = "🤖 TokenMate is thinking...";
-      messagesEl.appendChild(a);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-
-      sendBtn.disabled = true;
-
-      try{
-        const r = await fetch("/api/chat", {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ message: text, history: chatHistory })
-        });
-
-        const data = await r.json();
-        const reply = data.reply || data.error || "⚠️ No response from AI.";
-
-        a.textContent = reply;
-        chatHistory.push({ role:"assistant", content: reply });
-      }catch(e){
-        a.textContent = "❌ Error connecting to AI.";
-      }finally{
-        sendBtn.disabled = false;
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-      }
-    }
+ 
 
     sendBtn.addEventListener("click", sendChat);
     inputEl.addEventListener("keydown", (e) => {
       if(e.key === "Enter") sendChat();
     });
+
+    refreshPortfolioPrices();
+setInterval(refreshPortfolioPrices, 30000);
  });
-    
     </script>
 </body>
 </html>
