@@ -369,7 +369,7 @@ async function sendChat() {
   // AI bubble (temporary)
   const a = document.createElement("div");
   a.className = "message ai";
-  a.textContent = "✅ Chat is wired up.";
+  a.textContent = "You said: " + text;
   messagesEl.appendChild(a);
 
   messagesEl.scrollTop = messagesEl.scrollHeight;
