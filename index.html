@@ -310,8 +310,9 @@ function fmtPct(n){
 
 async function refreshPortfolioPrices() {
   try {
-    const url =
-      "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,solana&vs_currencies=usd&include_24hr_change=true";
+   const url =
+  "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,ripple&vs_currencies=usd&include_24hr_change=true";
+
 
     const r = await fetch(url);
     const d = await r.json();
