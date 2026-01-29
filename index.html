@@ -284,9 +284,10 @@
       Object.keys(views).forEach(k => views[k].classList.toggle("active", k === tabName));
     }
 
-    tabs.chat.addEventListener("click", () => setActive("chat"));
-    tabs.portfolio.addEventListener("click", () => setActive("portfolio"));
-    tabs.builder.addEventListener("click", () => setActive("builder"));
+    if (tabs.chat) tabs.chat.addEventListener("click", () => setActive("chat"));
+if (tabs.portfolio) tabs.portfolio.addEventListener("click", () => setActive("portfolio"));
+if (tabs.builder) tabs.builder.addEventListener("click", () => setActive("builder"));
+
 
     // Real AI
     let chatHistory = [];
@@ -306,6 +307,27 @@ function fmtPct(n){
   if (typeof n !== "number") return "—";
   const sign = n >= 0 ? "+" : "";
   return `${sign}${n.toFixed(2)}% (24h)`;
+}
+function sendChat() {
+  if (!inputEl || !messagesEl) return;
+
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  const u = document.createElement("div");
+  u.className = "message user";
+  u.textContent = text;
+  messagesEl.appendChild(u);
+
+  inputEl.value = "";
+  inputEl.focus();
+
+  const a = document.createElement("div");
+  a.className = "message ai";
+  a.textContent = "✅ Chat is wired up.";
+  messagesEl.appendChild(a);
+
+  messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
 async function refreshPortfolioPrices() {
@@ -347,12 +369,38 @@ async function refreshPortfolioPrices() {
     console.warn("Price fetch failed", e);
   }
 }
+async function sendChat() {
+  const inputEl = document.getElementById("chatInput");
+  const messagesEl = document.getElementById("chat");
+  if (!inputEl || !messagesEl) return;
+
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  // user bubble
+  const u = document.createElement("div");
+  u.className = "message user";
+  u.textContent = text;
+  messagesEl.appendChild(u);
+
+  inputEl.value = "";
+  inputEl.focus();
+
+  // AI bubble (temporary)
+  const a = document.createElement("div");
+  a.className = "message ai";
+  a.textContent = "✅ Chat is wired up.";
+  messagesEl.appendChild(a);
+
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
 
 // Hook chat events (these must be OUTSIDE the function)
-sendBtn.addEventListener("click", sendChat);
-inputEl.addEventListener("keydown", (e) => {
+if (sendBtn) sendBtn.addEventListener("click", sendChat);
+if (inputEl) inputEl.addEventListener("keydown", (e) => {
   if (e.key === "Enter") sendChat();
 });
+
 
 // Start prices
 refreshPortfolioPrices();
